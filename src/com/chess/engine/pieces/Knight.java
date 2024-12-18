@@ -20,7 +20,7 @@ public class Knight extends Piece {
     }
 
     @Override
-    public Collection<Move> collectionLegalMoves(Board board) {
+    public Collection<Move> collectionLegalMoves(final Board board) {
         final List<Move> legalMoves = new ArrayList<>();
 
         for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
@@ -28,24 +28,23 @@ public class Knight extends Piece {
             if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
 
                 //if there is a column exclusion...Continue through the loop excluding the current move
-                if (isFirstColumnExclusion(this.piecePosition, currentCandidateOffset) ||
-                        isSecondColumnExclusion(this.piecePosition, currentCandidateOffset) ||
-                        isSeventhColumnExclusion(this.piecePosition, currentCandidateOffset) ||
-                        isEighthColumnExclusion(this.piecePosition, currentCandidateOffset)
-                ) {
+                if (isFirstColumnExclusion(this.piecePosition, currentCandidateOffset)
+                        || isSecondColumnExclusion(this.piecePosition, currentCandidateOffset)
+                        || isSeventhColumnExclusion(this.piecePosition, currentCandidateOffset)
+                        || isEighthColumnExclusion(this.piecePosition, currentCandidateOffset)) {
                     continue;
                 }
 
                 //add non-attacking move
                 final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                 if (!candidateDestinationTile.isOccupied()) {
-                    legalMoves.add(new Move());
+                    legalMoves.add(new Move.MajorMove(board, this, candidateDestinationCoordinate));
                 } else {
                     //add new attacking move
                     final Piece pieceAtDestinationTile = candidateDestinationTile.getPiece();
                     final Alliance pieceAlliance = pieceAtDestinationTile.getPieceAlliance();
                     if (this.pieceAlliance != pieceAlliance) {
-                        legalMoves.add(new Move());
+                        legalMoves.add(new Move.AttackMove(board, this, candidateDestinationCoordinate, pieceAtDestinationTile));
                     }
                 }
             }
@@ -54,24 +53,27 @@ public class Knight extends Piece {
     }
 
     //exceptions
-
     private static boolean isFirstColumnExclusion(final int currentPosition, final int candidateOffset) {
-        return BoardUtils.FIRST_COLUMN[currentPosition] && (candidateOffset == -17 || candidateOffset == -10 ||
-                candidateOffset == 6 || candidateOffset == 15);
+        return BoardUtils.FIRST_COLUMN[currentPosition] && (candidateOffset == -17 || candidateOffset == -10
+                || candidateOffset == 6 || candidateOffset == 15);
     }
 
     private static boolean isSecondColumnExclusion(final int currentPosition, final int candidateOffset) {
         return BoardUtils.SECOND_COLUMN[currentPosition] && (candidateOffset == -10 || candidateOffset == 6);
     }
 
-    private static boolean isSeventhColumnExclusion(final int currentPosition, final int candidateOffset) {
-        return BoardUtils.SEVENTH_COLUMN[currentPosition] && (candidateOffset == -6 || candidateOffset == 10);
+    private static boolean isSeventhColumnExclusion(final int currentPosition,
+                                                    final int candidateOffset) {
+        return BoardUtils.SEVENTH_COLUMN[currentPosition]
+                && (candidateOffset == -6 || candidateOffset == 10);
     }
 
-    private static boolean isEighthColumnExclusion(final int currentPosition, final int candidateOffset) {
+    private static boolean isEighthColumnExclusion(final int currentPosition,
+                                                   final int candidateOffset) {
 
-        return BoardUtils.EIGHTH_COLUMN[currentPosition] && (candidateOffset == -15 || candidateOffset == -6 ||
-                candidateOffset == 10 || candidateOffset == 17);
+        return BoardUtils.EIGHTH_COLUMN[currentPosition] && (candidateOffset == -15
+                || candidateOffset == -6
+                || candidateOffset == 10 || candidateOffset == 17);
     }
 
 
